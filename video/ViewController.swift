@@ -12,45 +12,40 @@ import AVKit
 
 
 class ViewController: UIViewController {
-
+    
+    let queue = OperationQueue()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        let queue = OperationQueue()
-        let oper1 = PhotoToVideoOperation(photo: #imageLiteral(resourceName: "test"), durationInSeconds: 800)
-        
-        oper1.completionBlock = {
-            if oper1.outputURL != nil {
-                print("video: \(oper1.outputURL!)")
-                
-                let oper2 = SetAudioToVideoOperation(audio: AVAsset(url: Bundle.main.url(forResource: "test", withExtension: "mp3")!), sourceVideo: AVAsset(url: oper1.outputURL!))
-                queue.addOperation(oper2)
-                oper2.completionBlock = {
-                    if oper2.outputURL != nil {
-                        print("video+audio: \(oper2.outputURL!)")
-                        
-                        self.playVideo(url: oper2.outputURL!)
-                    } else {
-                        assert(false, oper2.outputError?.localizedDescription ?? "")
-                    }
-                }
-                
-            } else {
-                assert(false, oper1.outputError?.localizedDescription ?? "")
-            }
-        }
-        queue.addOperation(oper1)
-    }
     
-    func playVideo(url: URL) {
-        DispatchQueue.main.async {
-            let player = AVPlayer(url: url)
+        queue.maxConcurrentOperationCount = 1
+        
+        let photoToVideoOp = PhotoToVideoOperation(photo: #imageLiteral(resourceName: "test"), durationInSeconds: 800)
+        var setAudioToVideoOp: SetAudioToVideoOperation?
+        
+        queue.addOperation(photoToVideoOp)
+        
+        queue.addOperation {
+            guard let url = photoToVideoOp.outputURL, let audioUrl = Bundle.main.url(forResource: "test", withExtension: "mp3") else { assert(false); return }
             
-            let vc = AVPlayerViewController()
-            vc.player = player
-            
-            self.present(vc, animated: true) { vc.player?.play() }
+            setAudioToVideoOp = SetAudioToVideoOperation(audio: AVAsset(url: audioUrl), sourceVideo: AVAsset(url: url))
+            setAudioToVideoOp?.start()
+        }
+        
+        queue.addOperation {
+            guard let url = setAudioToVideoOp?.outputURL else { assert(false); return }
+            DispatchQueue.main.async { AVPlayerViewController.presentAndPlay(mediaAt: url, from: self) }
         }
     }
 }
 
+// MARK: -
+
+extension AVPlayerViewController {
+    
+    class func presentAndPlay(mediaAt url: URL, from presenter: UIViewController) {
+        let vc = AVPlayerViewController()
+        vc.player = AVPlayer(url: url)
+        presenter.present(vc, animated: true) { vc.player?.play() }
+    }
+}
