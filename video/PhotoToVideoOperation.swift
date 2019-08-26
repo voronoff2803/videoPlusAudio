@@ -48,13 +48,8 @@ class PhotoToVideoOperation: Operation {
             if videoWriter.startWriting() {
                 videoWriter.startSession(atSourceTime: CMTime.zero)
                 
-                guard let pixelBufferPool = pixelBufferAdaptor.pixelBufferPool else {
+                guard let pixelBufferPool = pixelBufferAdaptor.pixelBufferPool, let imagePixelBuffer = pixelBufferFromImage(image: photo, pixelBufferPool: pixelBufferPool, size: photo.size) else {
                     assert(false, "pixelBufferPool failed")
-                    return
-                }
-                
-                guard let imagePixelBuffer = pixelBufferFromImage(image: photo, pixelBufferPool: pixelBufferPool, size: photo.size) else {
-                    assert(false, "imagePixelBuffer failed")
                     return
                 }
                 
