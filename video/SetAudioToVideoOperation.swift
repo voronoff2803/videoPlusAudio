@@ -48,19 +48,12 @@ class SetAudioToVideoOperation: Operation {
         var mutableCompositionAudioTrack = [AVMutableCompositionTrack]()
         
         
-        guard let compositionAddAudio = mixComposition.addMutableTrack(withMediaType: AVMediaType.audio, preferredTrackID: kCMPersistentTrackID_Invalid), let compositionAddVideo = mixComposition.addMutableTrack(withMediaType: AVMediaType.video, preferredTrackID: kCMPersistentTrackID_Invalid)
+        guard let compositionAddAudio = mixComposition.addMutableTrack(withMediaType: AVMediaType.audio, preferredTrackID: kCMPersistentTrackID_Invalid), let compositionAddVideo = mixComposition.addMutableTrack(withMediaType: AVMediaType.video, preferredTrackID: kCMPersistentTrackID_Invalid),
+            let aVideoAssetTrack = sourceVideo.tracks(withMediaType: AVMediaType.video).first,
+            let aAudioAssetTrack = audio.tracks(withMediaType: AVMediaType.audio).first
             else {
-                print("composition audio error")
+                assert(false, "composition audio error")
                 return
-        }
-        
-        guard let aVideoAssetTrack = sourceVideo.tracks(withMediaType: AVMediaType.video).first else {
-            print("video asset invalid")
-            return
-        }
-        guard let aAudioAssetTrack = audio.tracks(withMediaType: AVMediaType.audio).first else {
-            print("audio asset invalid")
-            return
         }
 
         compositionAddVideo.preferredTransform = aVideoAssetTrack.preferredTransform
@@ -76,7 +69,9 @@ class SetAudioToVideoOperation: Operation {
         
         addAudioToComposition(compositionTrackAudio: mutableCompositionAudioTrack[0], audioTrack: aAudioAssetTrack, videoDuration: mutableCompositionVideoTrack[0].timeRange.duration)
     
-        let assetExport: AVAssetExportSession = AVAssetExportSession(asset: mixComposition, presetName: AVAssetExportPresetHighestQuality)!
+        guard let assetExport: AVAssetExportSession = AVAssetExportSession(asset: mixComposition, presetName: AVAssetExportPresetHighestQuality) else {
+            assert(false, "assetExport failure")
+        }
         assetExport.outputFileType = AVFileType.m4v
         assetExport.outputURL = URL(fileURLWithPath: dir)
         assetExport.shouldOptimizeForNetworkUse = true
@@ -85,11 +80,8 @@ class SetAudioToVideoOperation: Operation {
         
         assetExport.exportAsynchronously {
             switch assetExport.status {
-            case AVAssetExportSessionStatus.completed:
-                self.outputURL = assetExport.outputURL
-            default:
-                self.outputError = assetExport.error
-            }
+            case .completed: self.outputURL = assetExport.outputURL
+            default: self.outputError = assetExport.error }
             semaphore.signal()
         }
         

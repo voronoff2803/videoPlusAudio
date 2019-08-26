@@ -48,7 +48,6 @@ class PhotoToVideoOperation: Operation {
             if videoWriter.startWriting() {
                 videoWriter.startSession(atSourceTime: CMTime.zero)
                 
-                
                 guard let pixelBufferPool = pixelBufferAdaptor.pixelBufferPool else {
                     print("pixelBufferPool failed")
                     return
@@ -74,7 +73,6 @@ class PhotoToVideoOperation: Operation {
                         return
                     }
                     self.outputURL = URL(fileURLWithPath: dir)
-                    semaphore.signal()
                 }
                 
                 semaphore.wait()
@@ -85,6 +83,10 @@ class PhotoToVideoOperation: Operation {
     }
     
     func pixelBufferFromImage(image: UIImage, pixelBufferPool: CVPixelBufferPool, size: CGSize) -> CVPixelBuffer? {
+        guard let cgImage = image.cgImage else {
+            assert(false)
+            return nil
+        }
         
         var pixelBufferOut: CVPixelBuffer?
         
@@ -110,10 +112,6 @@ class PhotoToVideoOperation: Operation {
         
         let x = newSize.width < size.width ? (size.width - newSize.width) / 2 : 0
         let y = newSize.height < size.height ? (size.height - newSize.height) / 2 : 0
-        
-        guard let cgImage = image.cgImage else {
-            return nil
-        }
         
         context.draw(cgImage,in: CGRect(origin: CGPoint(x:x, y:y), size: CGSize(width:newSize.width, height:newSize.height)))
         CVPixelBufferUnlockBaseAddress(pixelBuffer, CVPixelBufferLockFlags(rawValue: 0))

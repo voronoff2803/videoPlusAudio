@@ -8,7 +8,7 @@
 
 import UIKit
 import AVFoundation
-import MediaPlayer
+import AVKit
 
 
 class ViewController: UIViewController {
@@ -17,32 +17,40 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         
         let queue = OperationQueue()
-        let oper = PhotoToVideoOperation(photo: #imageLiteral(resourceName: "test"), durationInSeconds: 800)
+        let oper1 = PhotoToVideoOperation(photo: #imageLiteral(resourceName: "test"), durationInSeconds: 800)
         
-        oper.completionBlock = {
-            if oper.outputURL != nil {
-                print(oper.outputURL ?? "")
-                let oper2 = SetAudioToVideoOperation(audio: AVAsset(url: Bundle.main.url(forResource: "test", withExtension: "mp3")!), sourceVideo: AVAsset(url: oper.outputURL!))
+        oper1.completionBlock = {
+            if oper1.outputURL != nil {
+                print("video: \(oper1.outputURL!)")
+                
+                let oper2 = SetAudioToVideoOperation(audio: AVAsset(url: Bundle.main.url(forResource: "test", withExtension: "mp3")!), sourceVideo: AVAsset(url: oper1.outputURL!))
+                queue.addOperation(oper2)
                 oper2.completionBlock = {
                     if oper2.outputURL != nil {
-                        print(oper2.outputURL ?? "")
-                        //let activity = UIActivityViewController(activityItems: [oper2.outputURL as Any], applicationActivities: nil)
-                        DispatchQueue.main.async {
-                        //    self.present(activity, animated: true)
-                        }
+                        print("video+audio: \(oper2.outputURL!)")
+                        
+                        self.playVideo(url: oper2.outputURL!)
                     } else {
-                        print(oper2.outputError ?? "")
+                        assert(false, oper2.outputError?.localizedDescription ?? "")
                     }
                 }
                 
-                queue.addOperation(oper2)
             } else {
-                print(oper.outputError ?? "")
+                assert(false, oper1.outputError?.localizedDescription ?? "")
             }
         }
-        
-        queue.addOperation(oper)
-        
+        queue.addOperation(oper1)
+    }
+    
+    func playVideo(url: URL) {
+        DispatchQueue.main.async {
+            let player = AVPlayer(url: url)
+            
+            let vc = AVPlayerViewController()
+            vc.player = player
+            
+            self.present(vc, animated: true) { vc.player?.play() }
+        }
     }
 }
 
