@@ -22,6 +22,26 @@ class SetAudioToVideoOperation: Operation {
         self.sourceVideo = sourceVideo
     }
     
+    override func main() {
+        let composition = AVMutableComposition()
+        
+        guard
+            let videoTrack = sourceVideo.tracks(withMediaType: AVMediaType.video).first,
+            let audioTrack = audio.tracks(withMediaType: AVMediaType.audio).first,
+            let audioCompositionTrack = composition.addMutableTrack(withMediaType: AVMediaType.audio, preferredTrackID: kCMPersistentTrackID_Invalid),
+            let videoCompositionTrack = composition.addMutableTrack(withMediaType: AVMediaType.video, preferredTrackID: kCMPersistentTrackID_Invalid)
+            else { assert(false); return }
+        
+        videoCompositionTrack.preferredTransform = videoTrack.preferredTransform
+        
+        do {
+            try videoCompositionTrack.insertTimeRange(CMTimeRangeMake(start: CMTime.zero, duration: videoTrack.timeRange.duration), of: videoTrack, at: CMTime.zero)
+            try addAudioToComposition(compositionTrackAudio: audioCompositionTrack, audioTrack: audioTrack, videoDuration: videoCompositionTrack.timeRange.duration)
+            exportSynchronously(composition: composition)
+        }
+        catch { outputError = error }
+    }
+    
     func addAudioToComposition(compositionTrackAudio: AVMutableCompositionTrack, audioTrack: AVAssetTrack, videoDuration: CMTime) throws {
         while compositionTrackAudio.timeRange.duration < videoDuration || compositionTrackAudio.timeRange.duration == .invalid {
             let insertionAudioTime = compositionTrackAudio.timeRange.duration.isValid ? compositionTrackAudio.timeRange.duration : .zero
@@ -31,33 +51,11 @@ class SetAudioToVideoOperation: Operation {
         }
     }
     
-    override func main() {
-        let dir = NSTemporaryDirectory() + UUID().uuidString + ".m4v"
-        
-        let mixComposition = AVMutableComposition()
-        var mutableCompositionVideoTrack = [AVMutableCompositionTrack]()
-        var mutableCompositionAudioTrack = [AVMutableCompositionTrack]()
-        
-        
-        guard let compositionAddAudio = mixComposition.addMutableTrack(withMediaType: AVMediaType.audio, preferredTrackID: kCMPersistentTrackID_Invalid), let compositionAddVideo = mixComposition.addMutableTrack(withMediaType: AVMediaType.video, preferredTrackID: kCMPersistentTrackID_Invalid),
-            let aVideoAssetTrack = sourceVideo.tracks(withMediaType: AVMediaType.video).first,
-            let aAudioAssetTrack = audio.tracks(withMediaType: AVMediaType.audio).first
-            else { assert(false); return }
-        
-        compositionAddVideo.preferredTransform = aVideoAssetTrack.preferredTransform
-        mutableCompositionVideoTrack.append(compositionAddVideo)
-        mutableCompositionAudioTrack.append(compositionAddAudio)
-        
-        do {
-            try mutableCompositionVideoTrack[0].insertTimeRange(CMTimeRangeMake(start: CMTime.zero, duration: aVideoAssetTrack.timeRange.duration), of: aVideoAssetTrack, at: CMTime.zero)
-            try addAudioToComposition(compositionTrackAudio: mutableCompositionAudioTrack[0], audioTrack: aAudioAssetTrack, videoDuration: mutableCompositionVideoTrack[0].timeRange.duration)
-        }
-        catch { outputError = error }
-        
-        guard let assetExport = AVAssetExportSession(asset: mixComposition, presetName: AVAssetExportPresetHighestQuality) else { assert(false); return }
+    func exportSynchronously(composition: AVComposition) {
+        guard let assetExport = AVAssetExportSession(asset: composition, presetName: AVAssetExportPresetHighestQuality) else { assert(false); return }
         
         assetExport.outputFileType = AVFileType.m4v
-        assetExport.outputURL = URL(fileURLWithPath: dir)
+        assetExport.outputURL = URL(fileURLWithPath: NSTemporaryDirectory() + UUID().uuidString + ".m4v")
         assetExport.shouldOptimizeForNetworkUse = true
         
         let semaphore = DispatchSemaphore(value: 0)

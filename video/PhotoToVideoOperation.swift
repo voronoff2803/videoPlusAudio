@@ -56,10 +56,11 @@ class PhotoToVideoOperation: Operation {
             pixelBufferAdaptor.append(imagePixelBuffer, withPresentationTime: CMTime.zero)
             pixelBufferAdaptor.append(imagePixelBuffer, withPresentationTime: vidDuration)
             
-            let semaphore = DispatchSemaphore(value: 0)
-            
             videoWriterInput.markAsFinished()
             videoWriter.endSession(atSourceTime: vidDuration)
+            
+            let semaphore = DispatchSemaphore(value: 0)
+            
             videoWriter.finishWriting {
                 defer { semaphore.signal() }
                 guard videoWriter.status == .completed else { self.outputError = videoWriter.error; return }
