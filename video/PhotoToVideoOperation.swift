@@ -49,12 +49,12 @@ class PhotoToVideoOperation: Operation {
                 videoWriter.startSession(atSourceTime: CMTime.zero)
                 
                 guard let pixelBufferPool = pixelBufferAdaptor.pixelBufferPool else {
-                    print("pixelBufferPool failed")
+                    assert(false, "pixelBufferPool failed")
                     return
                 }
                 
                 guard let imagePixelBuffer = pixelBufferFromImage(image: photo, pixelBufferPool: pixelBufferPool, size: photo.size) else {
-                    print("imagePixelBuffer failed")
+                    assert(false, "imagePixelBuffer failed")
                     return
                 }
                 
@@ -68,10 +68,7 @@ class PhotoToVideoOperation: Operation {
                 videoWriter.endSession(atSourceTime: vidDuration)
                 videoWriter.finishWriting {
                     defer { semaphore.signal() }
-                    guard videoWriter.status == .completed else {
-                        self.outputError = videoWriter.error
-                        return
-                    }
+                    guard videoWriter.status == .completed else { self.outputError = videoWriter.error; return }
                     self.outputURL = URL(fileURLWithPath: dir)
                 }
                 
