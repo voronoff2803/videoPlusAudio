@@ -33,6 +33,16 @@ class ViewController: UIViewController {
         }
         
         queue.addOperation {
+            guard let videoWithAudioUrl = setAudioToVideoOp?.outputURL, let justVideoUrl = photoToVideoOp.outputURL else { assert(false); return }
+            
+            let saveVideoWithAudioOp = SaveVideoToPhotoLibraryOperation(videoUrl: videoWithAudioUrl)
+            saveVideoWithAudioOp.start()
+            
+            let saveJustVideoOp = SaveVideoToPhotoLibraryOperation(videoUrl: justVideoUrl)
+            saveJustVideoOp.start()
+        }
+        
+        queue.addOperation {
             guard let url = setAudioToVideoOp?.outputURL else { assert(false); return }
             DispatchQueue.main.async { AVPlayerViewController.presentAndPlay(mediaAt: url, from: self) }
         }
