@@ -22,7 +22,8 @@ class ViewController: UIViewController {
         
         let photoToVideoOp = PhotoToVideoOperation()
         photoToVideoOp.photo = #imageLiteral(resourceName: "test")
-        photoToVideoOp.durationInSeconds = 800
+        photoToVideoOp.durationInSeconds = 100
+        photoToVideoOp.targetSize = photoToVideoOp.photo?.size
         
         var setAudioToVideoOp: SetAudioToVideoOperation?
         
