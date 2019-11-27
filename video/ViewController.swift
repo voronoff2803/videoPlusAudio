@@ -20,20 +20,23 @@ class ViewController: UIViewController {
     
         queue.maxConcurrentOperationCount = 1
         
-        let photoToVideoOp = PhotoToVideoOperation(photo: #imageLiteral(resourceName: "test"), durationInSeconds: 800)
+        let photoToVideoOp = PhotoToVideoOperation()
+        photoToVideoOp.photo = #imageLiteral(resourceName: "test")
+        photoToVideoOp.durationInSeconds = 800
+        
         var setAudioToVideoOp: SetAudioToVideoOperation?
         
         queue.addOperation(photoToVideoOp)
         
         queue.addOperation {
-            guard let url = photoToVideoOp.outputURL, let audioUrl = Bundle.main.url(forResource: "test", withExtension: "mp3") else { assert(false); return }
+            guard let url = photoToVideoOp.outputUrl, let audioUrl = Bundle.main.url(forResource: "test", withExtension: "mp3") else { assert(false); return }
             
             setAudioToVideoOp = SetAudioToVideoOperation(audio: AVAsset(url: audioUrl), sourceVideo: AVAsset(url: url))
             setAudioToVideoOp?.start()
         }
         
         queue.addOperation {
-            guard let videoWithAudioUrl = setAudioToVideoOp?.outputURL, let justVideoUrl = photoToVideoOp.outputURL else { assert(false); return }
+            guard let videoWithAudioUrl = setAudioToVideoOp?.outputURL, let justVideoUrl = photoToVideoOp.outputUrl else { assert(false); return }
             
             let saveVideoWithAudioOp = SaveVideoToPhotoLibraryOperation(videoUrl: videoWithAudioUrl)
             saveVideoWithAudioOp.start()

@@ -16,6 +16,9 @@
 		0DF37030230D8B2900EC888E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0DF3702E230D8B2900EC888E /* LaunchScreen.storyboard */; };
 		0DF37038230DA8DC00EC888E /* PhotoToVideoOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DF37037230DA8DC00EC888E /* PhotoToVideoOperation.swift */; };
 		6452C643232577C00072152C /* SaveVideoToPhotoLibraryOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6452C642232577C00072152C /* SaveVideoToPhotoLibraryOperation.swift */; };
+		64E4D1D9238F1B6B0071DDF2 /* Optionals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64E4D1D8238F1B6B0071DDF2 /* Optionals.swift */; };
+		64E4D1DB238F1B760071DDF2 /* Expectations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64E4D1DA238F1B760071DDF2 /* Expectations.swift */; };
+		64E4D1DD238F1B800071DDF2 /* BinaryFloatingPoint+Conversions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64E4D1DC238F1B800071DDF2 /* BinaryFloatingPoint+Conversions.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,6 +33,9 @@
 		0DF37031230D8B2900EC888E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0DF37037230DA8DC00EC888E /* PhotoToVideoOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoToVideoOperation.swift; sourceTree = "<group>"; };
 		6452C642232577C00072152C /* SaveVideoToPhotoLibraryOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveVideoToPhotoLibraryOperation.swift; sourceTree = "<group>"; };
+		64E4D1D8238F1B6B0071DDF2 /* Optionals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Optionals.swift; sourceTree = "<group>"; };
+		64E4D1DA238F1B760071DDF2 /* Expectations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Expectations.swift; sourceTree = "<group>"; };
+		64E4D1DC238F1B800071DDF2 /* BinaryFloatingPoint+Conversions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BinaryFloatingPoint+Conversions.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -62,6 +68,7 @@
 		0DF37024230D8B2700EC888E /* video */ = {
 			isa = PBXGroup;
 			children = (
+				64E4D1DE238F1B910071DDF2 /* Extensions */,
 				0DD2332F230DD482006F7CC6 /* test.mp3 */,
 				0DF37025230D8B2700EC888E /* AppDelegate.swift */,
 				0DF37027230D8B2700EC888E /* ViewController.swift */,
@@ -74,6 +81,16 @@
 				0DF37031230D8B2900EC888E /* Info.plist */,
 			);
 			path = video;
+			sourceTree = "<group>";
+		};
+		64E4D1DE238F1B910071DDF2 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				64E4D1D8238F1B6B0071DDF2 /* Optionals.swift */,
+				64E4D1DA238F1B760071DDF2 /* Expectations.swift */,
+				64E4D1DC238F1B800071DDF2 /* BinaryFloatingPoint+Conversions.swift */,
+			);
+			path = Extensions;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -151,8 +168,11 @@
 				0DF37028230D8B2700EC888E /* ViewController.swift in Sources */,
 				0DF37026230D8B2700EC888E /* AppDelegate.swift in Sources */,
 				6452C643232577C00072152C /* SaveVideoToPhotoLibraryOperation.swift in Sources */,
+				64E4D1DB238F1B760071DDF2 /* Expectations.swift in Sources */,
+				64E4D1D9238F1B6B0071DDF2 /* Optionals.swift in Sources */,
 				0DD2332E230DD00D006F7CC6 /* SetAudioToVideoOperation.swift in Sources */,
 				0DF37038230DA8DC00EC888E /* PhotoToVideoOperation.swift in Sources */,
+				64E4D1DD238F1B800071DDF2 /* BinaryFloatingPoint+Conversions.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
